@@ -42,7 +42,7 @@ module.exports = {
       },
       paymentStatus: {
         type: Sequelize.ENUM,
-        values: ["Chưa thanh toán", "Đẫ thanh toán"],
+        values: ["Chưa thanh toán", "Đã thanh toán"],
       },
       createdAt: {
         allowNull: false,

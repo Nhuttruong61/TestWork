@@ -42,6 +42,8 @@ router.put(
 
 router.get("/get-products", ProductController.getProducts);
 router.get("/get-product/:id", ProductController.getProduct);
+router.get("/get-product-category/:id", ProductController.getProductCategory);
+
 router.delete(
   "/delete-product/:id",
   verifyToken,

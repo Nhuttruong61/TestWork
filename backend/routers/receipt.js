@@ -26,4 +26,11 @@ router.get(
   isAdmin,
   ReceiptController.getReceipts
 );
+router.delete(
+  "/delete-receipt/:id",
+  verifyToken,
+  isAdmin,
+  ReceiptController.deleteReceipt
+);
+router.get("/get-receipt/:id", verifyToken, ReceiptController.getReceipt);
 module.exports = router;

@@ -21,8 +21,16 @@ router.post(
   OrderController.createOrder
 );
 
+router.get(
+  "/get-orders-online",
+  verifyToken,
+  isAdmin,
+  OrderController.getOrderOnlines
+);
 router.get("/get-orders", verifyToken, isAdmin, OrderController.getOrders);
-router.get("/get-order/:id", verifyToken, OrderController.getOrders);
+router.get("/get-order/:id", verifyToken, OrderController.getOrder);
+router.get("/get-order-user", verifyToken, OrderController.getOrderUser);
+
 router.put(
   "/update-status/:id",
   validateDto(

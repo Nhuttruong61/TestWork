@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const initialRouter = require("./routers");
 const DataBaseConnect = require("./config/mysql.config");
+const CloudinaryConnect = require("./config/cloudinary.config");
 require("dotenv").config();
 const app = express();
 app.use(
@@ -17,3 +18,4 @@ app.listen(PORT || 8000, () => {
   console.log("listening on port " + process.env.PORT);
 });
 DataBaseConnect();
+CloudinaryConnect();

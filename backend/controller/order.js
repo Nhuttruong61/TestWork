@@ -4,7 +4,6 @@ const createOrder = async (req, res, next) => {
   try {
     const { stackId, product, totalPrice, payment, status, paymentStatus } =
       req.body;
-
     if (payment === "Tại quầy") {
       const idCart = [];
       for (el of product) {
@@ -52,7 +51,6 @@ const createOrder = async (req, res, next) => {
       });
     }
     const { id } = req.user;
-
     const listProduct = await db.Cart.findAll({
       where: {
         userId: id,
@@ -90,24 +88,61 @@ const createOrder = async (req, res, next) => {
     });
   }
 };
-const getOrders = async (req, res, next) => {
+const getOrderOnlines = async (req, res, next) => {
   try {
-    const orders = await db.Order.findAll();
+    const orders = await db.Order.findAll({
+      where: {
+        payment: "Online",
+      },
+      include: [
+        {
+          model: db.User,
+          attributes: ["id", "fullName", "phone", "address"],
+        },
+      ],
+    });
     const formattedOrders = await Promise.all(
       orders.map(async (order) => {
         const products = await Promise.all(
           order.product.map(async (item) => {
             const product = await db.Product.findByPk(item.productId);
-            return product;
+            return {
+              id: product.id,
+              name: product.name,
+              quantity: item.quantity,
+            };
           })
         );
         order.product = products;
         return order;
       })
     );
+    console.log(formattedOrders);
     return res.status(200).json({
       success: true,
-      formattedOrders,
+      orders: formattedOrders,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      mes: err,
+    });
+  }
+};
+
+const getOrders = async (req, res, next) => {
+  try {
+    const orders = await db.Order.findAll({
+      include: [
+        {
+          model: db.User,
+          attributes: ["id", "fullName", "phone", "address"],
+        },
+      ],
+    });
+
+    return res.status(200).json({
+      success: true,
+      orders: orders,
     });
   } catch (err) {
     return res.status(500).json({
@@ -125,7 +160,11 @@ const getOrder = async (req, res, next) => {
         const products = await Promise.all(
           order.product.map(async (item) => {
             const product = await db.Product.findByPk(item.productId);
-            return product;
+            return {
+              id: product.id,
+              name: product.name,
+              quantity: item.quantity,
+            };
           })
         );
         order.product = products;
@@ -134,7 +173,7 @@ const getOrder = async (req, res, next) => {
     );
     return res.status(200).json({
       success: true,
-      formattedOrders,
+      orders: formattedOrders,
     });
   } catch (err) {
     return res.status(500).json({
@@ -241,11 +280,50 @@ const deleteOrder = async (req, res, next) => {
     });
   }
 };
+
+const getOrderUser = async (req, res, next) => {
+  try {
+    const { id } = req.user;
+    const orders = await db.Order.findAll({
+      where: {
+        userId: id,
+      },
+    });
+    const formattedOrders = await Promise.all(
+      orders.map(async (order) => {
+        const products = await Promise.all(
+          order.product.map(async (item) => {
+            const product = await db.Product.findByPk(item.productId);
+            return {
+              id: product.id,
+              name: product.name,
+              image: product.image,
+              quantity: item.quantity,
+            };
+          })
+        );
+        order.product = products;
+        return order;
+      })
+    );
+    return res.status(200).json({
+      success: true,
+      orders: formattedOrders,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      mes: err,
+    });
+  }
+};
+
 module.exports = {
   createOrder,
-  getOrders,
+  getOrderOnlines,
   getOrder,
+  getOrderUser,
   updateStatus,
   cancleOrder,
   deleteOrder,
+  getOrders,
 };

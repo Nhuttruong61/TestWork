@@ -40,6 +40,27 @@ const getReceipts = async (req, res, next) => {
     });
   }
 };
+const getReceipt = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const receipt = await await db.Receipt.findByPk(id, {
+      include: [
+        {
+          model: db.Product,
+          attributes: ["id", "name", "image"],
+        },
+      ],
+    });
+    return res.status(200).json({
+      success: true,
+      receipt,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      mes: err,
+    });
+  }
+};
 
 const deleteReceipt = async (req, res, next) => {
   try {
@@ -70,4 +91,5 @@ module.exports = {
   createReceipt,
   getReceipts,
   deleteReceipt,
+  getReceipt,
 };

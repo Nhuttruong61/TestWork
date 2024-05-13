@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       paymentStatus: {
         type: DataTypes.ENUM,
-        values: ["Chưa thanh toán", "Đẫ thanh toán"],
+        values: ["Chưa thanh toán", "Đã thanh toán"],
       },
     },
     {

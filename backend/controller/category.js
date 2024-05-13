@@ -1,5 +1,5 @@
 const db = require("../models");
-
+const cloudinary = require("cloudinary").v2;
 const createCategory = async (req, res, next) => {
   try {
     const { name, image } = req.body;
@@ -10,9 +10,15 @@ const createCategory = async (req, res, next) => {
         mes: "Tên danh mục dẫ tồn tại",
       });
     }
+    const myCloud = await cloudinary.uploader.upload(image, {
+      folder: "testWork/Category",
+    });
     const category = await db.Categogy.create({
       name: name,
-      image: image,
+      image: {
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url,
+      },
     });
     return res.status(200).json({
       success: true,
@@ -28,6 +34,7 @@ const createCategory = async (req, res, next) => {
 const getCategorys = async (req, res, next) => {
   try {
     const category = await db.Categogy.findAll();
+
     if (!category) {
       return res.status(400).json({
         mes: "Không tìm thấy sản phẩm",
@@ -69,13 +76,22 @@ const updateCategory = async (req, res, next) => {
     const { id } = req.params;
     const { name, image } = req.body;
     const category = await db.Categogy.findByPk(id);
+
     if (!category) {
       return res.status(400).json({
         mes: "Không tìm thấy sản phẩm",
       });
     }
+    if (image) {
+      const myCloud = await cloudinary.uploader.upload(image, {
+        folder: "testWork/Category",
+      });
+      category.image = {
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url,
+      };
+    }
     category.name = name;
-    category.image = image;
     await category.save();
 
     return res.status(200).json({
@@ -98,6 +114,7 @@ const deleteCategory = async (req, res, next) => {
         mes: "Không tìm thấy sản phẩm",
       });
     }
+    await cloudinary.uploader.destroy(category.image.public_id);
     await db.Categogy.destroy({
       where: {
         id,

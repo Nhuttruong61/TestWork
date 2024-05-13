@@ -11,14 +11,17 @@ router.post(
     Joi.object({
       userId: string,
       productId: stringReq,
-      quantity: stringReq,
+      quantity: numberReq,
     })
   ),
   verifyToken,
   CartController.createCart
 );
 router.get("/get-carts", verifyToken, CartController.getCarts);
-router.get("/get-cart/:id", verifyToken, CartController.getCart);
-router.put("/update-cart/:id", verifyToken, CartController.updateCart);
+router.delete(
+  "/delete-cart/:idc",
+  verifyToken,
+  CartController.deleteProductCart
+);
 
 module.exports = router;

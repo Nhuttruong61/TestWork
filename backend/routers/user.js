@@ -22,12 +22,7 @@ router.put(
 );
 router.delete("/delete/:id", verifyToken, isAdmin, UserController.deleteUser);
 router.put("/accept/:id", verifyToken, isAdmin, UserController.acceptAcount);
-router.get(
-  "/get-revenue",
-  verifyToken,
-  isStack,
-  UserController.getRevenueUsers
-);
+router.get("/get-revenue", verifyToken, isStack, UserController.getRevenueUser);
 router.get(
   "/get-revenues",
   verifyToken,

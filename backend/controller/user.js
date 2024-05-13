@@ -127,7 +127,7 @@ const acceptAcount = async (req, res, next) => {
         mes: "Tài khoản không được tìm thấy",
       });
     }
-    user.accessAccount = accessAccount;
+    user.accessAccount = "DXN";
     await user.save();
     return res.status(200).json({
       success: true,
@@ -148,9 +148,26 @@ const getRevenueUser = async (req, res, next) => {
         stackId: id,
       },
     });
+    const formattedOrders = await Promise.all(
+      revenue.map(async (order) => {
+        const products = await Promise.all(
+          order.product.map(async (item) => {
+            const product = await db.Product.findByPk(item.product);
+            return {
+              id: product.id,
+              name: product.name,
+              image: product.image,
+              quantity: item.quantity,
+            };
+          })
+        );
+        order.product = products;
+        return order;
+      })
+    );
     return res.status(200).json({
       success: true,
-      revenue,
+      revenue: formattedOrders,
     });
   } catch (err) {
     return res.status(500).json({
@@ -179,7 +196,9 @@ const getRevenueUsers = async (req, res, next) => {
         attributes: ["id", "product", "totalPrice", "createdAt"],
       });
       return {
-        user: item,
+        userName: item.fullName,
+        userId: item.id,
+        phone: item.phone,
         revenue,
       };
     });

@@ -83,6 +83,13 @@ const registerStack = async (req, res) => {
         mes: "Email đã được sử dụng",
       });
     }
+    const checkUser = await db.User.findByPk(referrerId);
+    if (!checkUser || checkUser.role === "USER") {
+      return res.status(400).json({
+        success: false,
+        mes: "Mã giới thiệu không chính xác",
+      });
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await db.User.create({
       fullName: fullName,
@@ -101,7 +108,6 @@ const registerStack = async (req, res) => {
       });
     }
   } catch (err) {
-    console.log(err);
     return res.status(500).json({
       mes: err.mes,
     });

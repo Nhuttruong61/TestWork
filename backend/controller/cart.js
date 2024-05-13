@@ -6,7 +6,7 @@ const createCart = async (req, res, next) => {
 
     const checkQuantity = await db.Product.findByPk(productId);
     if (!checkQuantity || checkQuantity.quantity < quantity) {
-      return res.status(200).json({
+      return res.status(400).json({
         success: false,
         mes: "Số lượng trong kho không đủ",
       });
@@ -55,6 +55,10 @@ const getCarts = async (req, res, next) => {
         {
           model: db.Product,
         },
+        {
+          model: db.User,
+          attributes: ["fullName", "phone", "address"],
+        },
       ],
     });
     return res.status(200).json({
@@ -67,37 +71,26 @@ const getCarts = async (req, res, next) => {
     });
   }
 };
-const getCart = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const cart = await db.Cart.findByPk(id, {
-      include: [
-        {
-          model: db.Product,
-        },
-      ],
-    });
-    return res.status(200).json({
-      success: true,
-      cart,
-    });
-  } catch (err) {
-    return res.status(500).json({
-      mes: err,
-    });
-  }
-};
 
-const updateCart = async (req, res, next) => {
+const deleteProductCart = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const { quantity } = req.body;
-    const cart = await db.Cart.findByPk(id);
-    cart.quantity = quantity;
-    await cart.save();
+    const { idc } = req.params;
+    const cart = await db.Cart.findByPk(idc);
+    if (!cart) {
+      return res.status(400).json({
+        success: false,
+        mes: "Không tìm thấy sản phẩm",
+      });
+    }
+    await db.Cart.destroy({
+      where: {
+        id: idc,
+      },
+    });
+
     return res.status(200).json({
       success: true,
-      cart,
+      mes: "Xóa thành công",
     });
   } catch (err) {
     return res.status(500).json({
@@ -109,6 +102,5 @@ const updateCart = async (req, res, next) => {
 module.exports = {
   createCart,
   getCarts,
-  getCart,
-  updateCart,
+  deleteProductCart,
 };
